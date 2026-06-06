@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+
+# 敏感配置
+.env
+config/settings.toml
+
+# 数据（体积大，本地保留）
+data/
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# 日志与输出
+logs/
+output/reports/

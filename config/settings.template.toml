@@ -1,0 +1,48 @@
+# config/settings.toml — 多因子策略完整配置 v2.0
+# 复制此文件为 settings.toml 并填入实际值
+
+[data]
+tushare_token = "YOUR_TOKEN_HERE"   # ⚠️ 必填，从 https://tushare.pro 获取
+raw_dir = "data/raw"
+processed_dir = "data/processed"
+start_date = "20150101"
+end_date = "20251231"
+# [v2.0] BaoStock 交叉验证
+use_baostock_validation = true
+baostock_raw_dir = "data/raw/baostock_daily"
+# 是否使用系统代理访问 Tushare API（代理不稳定时可设为 false 直连）
+tushare_use_proxy = true
+
+[factor]                            # [v2.0] 全因子VMP + IC引导权重
+sigma_target = 0.15                 # 目标年化波动率（Wang & Li 2024）
+mom_lookback = 60                   # VMP波动率回看交易日（Moreira & Muir 2017）
+vmp_upper_bound = 2.0               # VMP缩放上限（允许适度放大）
+ic_lookback_months = 24             # IC回看窗口
+ic_half_life_months = 6             # IC衰减半衰期
+ic_weight_deviation_max = 0.5       # IC权重偏离等权上限（±50%）
+
+[backtest]
+initial_capital = 100000.0
+commission_rate = 0.00025           # 万2.5
+min_commission = 5.0                # 最低5元/笔
+stamp_tax_rate = 0.0005             # 万5（卖出）
+transfer_fee_rate = 0.00001         # 万0.1（沪市双向）
+slippage_bps = 0.10                 # 滑点 10bps
+walk_forward_train_years = 3        # [v2.0] Walk-Forward 训练窗口
+walk_forward_test_years = 1         # [v2.0] Walk-Forward 验证窗口
+pbo_threshold = 0.30                # [v2.0] PBO 合格阈值
+
+[risk]
+max_single_weight = 0.10
+max_industry_weight = 0.30
+max_star_market_weight = 2          # [v2.0] 科创板最大持仓数/10
+ma_period = 20                      # [v2.0] 均线周期（MA60→MA20）
+vol_window = 20                     # 波动率计算窗口
+vol_percentile = 0.50               # 波动率阈值（>60日历史中位数）
+hysteresis_down = 5                 # 降仓迟滞天数
+hysteresis_up = 3                   # [v2.0 新增] 恢复迟滞天数
+reduced_position_ratio = 0.50
+alpha_drawdown_threshold = -0.10    # 6月超额<-10% → STOP
+early_warning_threshold = -0.03     # 3月超额<-3% → WARNING
+hard_drawdown_limit = -0.15         # [v2.0] 绝对回撤>15% → STOP（原25%）
+enable_gc001 = true                 # [v2.0] 闲置资金自动申购GC001
