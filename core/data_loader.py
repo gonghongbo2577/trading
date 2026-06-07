@@ -645,6 +645,7 @@ class DataLoader:
                     Path(self.config.raw_dir)
                     / "tushare_fina" / f"{code}.parquet"
                 )
+                output_path.parent.mkdir(parents=True, exist_ok=True)
                 df.write_parquet(output_path)
                 return True
         return False
