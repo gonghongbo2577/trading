@@ -1025,7 +1025,8 @@ class DataLoader:
             output_dir.mkdir(parents=True, exist_ok=True)
             df.write_parquet(output_dir / "pledge.parquet")
             logger.info("股权质押数据下载完成",
-                        stocks=len(df), failed=failed)
+                        rows=len(df), stocks=df["ts_code"].n_unique(),
+                        failed=failed)
             return df
         else:
             logger.warning("未获取到质押数据")
@@ -1142,17 +1143,21 @@ class DataLoader:
                             bs_date = row[0].replace("-", "")  # 2015-01-05 → 20150105
                             if bs_date not in valid_dates:
                                 continue
-                            buffer[bs_date].append({
-                                "trade_date": bs_date,
-                                "ts_code": ts_code,
-                                "open": float(row[2]),
-                                "high": float(row[3]),
-                                "low": float(row[4]),
-                                "close": float(row[5]),
-                                "pre_close": float(row[6]),
-                                "vol": float(row[7]),
-                                "amount": float(row[8]),
-                            })
+                            try:
+                                buffer[bs_date].append({
+                                    "trade_date": bs_date,
+                                    "ts_code": ts_code,
+                                    "open": float(row[2]),
+                                    "high": float(row[3]),
+                                    "low": float(row[4]),
+                                    "close": float(row[5]),
+                                    "pre_close": float(row[6]),
+                                    "vol": float(row[7]),
+                                    "amount": float(row[8]),
+                                })
+                            except (ValueError, TypeError):
+                                # 退市/停牌股票某些字段为空字符串 ''，跳过该行
+                                continue
                         success += 1
                         completed.add(bs_code)
                     else:
@@ -1161,6 +1166,9 @@ class DataLoader:
                             logger.warning("BaoStock 单只股票查询失败",
                                            bs_code=bs_code, ts_code=ts_code,
                                            error_code=rs.error_code)
+                        else:
+                            logger.debug("BaoStock 无数据（正常，如北交所股票）",
+                                         bs_code=bs_code, ts_code=ts_code)
                 except Exception as e:
                     failed += 1
                     if failed <= 5:
