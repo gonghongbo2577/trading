@@ -31,7 +31,8 @@ def _is_retryable_error(error: Exception) -> bool:
     err_str = str(error).lower()
     retryable = ("timeout", "connection", "timed out", "reset", "refused",
                  "too many requests", "service unavailable", "网关",
-                 "连接", "超时", "频率", "rate limit")
+                 "连接", "超时", "频率", "rate limit",
+                 "prematurely", "incomplete")
     return any(kw in err_str for kw in retryable)
 
 
